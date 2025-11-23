@@ -103,6 +103,28 @@ De applicatie is gebouwd met vanilla JavaScript en heeft geen build process nodi
 - **styles.css**: Alle styling en responsive design
 - **app.js**: File handling, conversie logica en download functionaliteit
 
+## Changelog
+
+### v1.1 - PDF Rendering Fix
+**Branch**: `claude/fix-pdf-white-pages-01G8RdLFckwDnTE7xj9CYPLv`
+
+**Verbeteringen:**
+- ✅ Opgelost: Witte pagina's in PDF output
+- ✅ Verbeterde PDF rendering engine
+- ✅ Optimale styling voor PDF documenten
+- ✅ A4 formaat met correcte marges (10mm)
+- ✅ Betere font rendering en kleurweergave
+- ✅ Loading indicator tijdens PDF generatie
+- ✅ Verbeterde error handling
+
+**Technische wijzigingen:**
+- Content wordt nu correct toegevoegd aan de DOM voor rendering
+- Gebruik van expliciete A4 dimensies (210mm breed)
+- Verbeterde CSS specificity voor PDF elementen
+- Witte achtergrond en juiste kleurcontrasten
+- Betere configuratie voor html2canvas en jsPDF
+- Automatische cleanup na PDF generatie
+
 ## Licentie
 
 © 2024 Narhval. Alle rechten voorbehouden.
