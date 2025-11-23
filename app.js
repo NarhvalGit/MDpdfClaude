@@ -273,178 +273,166 @@ function downloadPDF(fileName) {
     btn.innerHTML = '<span class="loading"></span> PDF wordt gegenereerd...';
     btn.disabled = true;
 
-    // Create a wrapper with proper styling
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'absolute';
-    wrapper.style.left = '-9999px';
-    wrapper.style.top = '0';
-    wrapper.style.width = '210mm'; // A4 width
-    wrapper.style.background = 'white';
-    wrapper.style.padding = '20mm';
-    wrapper.style.boxSizing = 'border-box';
-    wrapper.id = 'pdf-content-wrapper';
-
-    // Create styled content
-    const styledContent = `
-        <div style="font-family: Arial, Helvetica, sans-serif; color: #1f2937; line-height: 1.6; font-size: 12pt;">
-            <style>
-                #pdf-content-wrapper h1 {
-                    color: #1e3a8a;
-                    font-size: 24pt;
-                    margin-top: 20px;
-                    margin-bottom: 10px;
-                    border-bottom: 2px solid #e5e7eb;
-                    padding-bottom: 8px;
-                }
-                #pdf-content-wrapper h2 {
-                    color: #1e3a8a;
-                    font-size: 20pt;
-                    margin-top: 18px;
-                    margin-bottom: 8px;
-                }
-                #pdf-content-wrapper h3 {
-                    color: #1e3a8a;
-                    font-size: 16pt;
-                    margin-top: 16px;
-                    margin-bottom: 6px;
-                }
-                #pdf-content-wrapper h4 {
-                    color: #1e3a8a;
-                    font-size: 14pt;
-                    margin-top: 14px;
-                    margin-bottom: 6px;
-                }
-                #pdf-content-wrapper h5, #pdf-content-wrapper h6 {
-                    color: #1e3a8a;
-                    font-size: 12pt;
-                    margin-top: 12px;
-                    margin-bottom: 6px;
-                }
-                #pdf-content-wrapper p {
-                    margin: 8px 0;
-                }
-                #pdf-content-wrapper ul, #pdf-content-wrapper ol {
-                    margin: 8px 0;
-                    padding-left: 24px;
-                }
-                #pdf-content-wrapper li {
-                    margin: 4px 0;
-                }
-                #pdf-content-wrapper code {
-                    background: #f3f4f6;
-                    color: #1f2937;
-                    padding: 2px 6px;
-                    border-radius: 3px;
-                    font-family: 'Courier New', monospace;
-                    font-size: 10pt;
-                }
-                #pdf-content-wrapper pre {
-                    background: #f3f4f6;
-                    color: #1f2937;
-                    padding: 12px;
-                    border-radius: 4px;
-                    overflow-x: auto;
-                    margin: 12px 0;
-                    border: 1px solid #e5e7eb;
-                }
-                #pdf-content-wrapper pre code {
-                    background: transparent;
-                    padding: 0;
-                }
-                #pdf-content-wrapper blockquote {
-                    border-left: 4px solid #3b82f6;
-                    padding-left: 16px;
-                    margin: 12px 0;
-                    color: #6b7280;
-                    font-style: italic;
-                }
-                #pdf-content-wrapper a {
-                    color: #3b82f6;
-                    text-decoration: underline;
-                }
-                #pdf-content-wrapper table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 12px 0;
-                }
-                #pdf-content-wrapper th, #pdf-content-wrapper td {
-                    border: 1px solid #d1d5db;
-                    padding: 8px;
-                    text-align: left;
-                }
-                #pdf-content-wrapper th {
-                    background: #1e3a8a;
-                    color: white;
-                    font-weight: 600;
-                }
-                #pdf-content-wrapper tr:nth-child(even) {
-                    background: #f9fafb;
-                }
-                #pdf-content-wrapper img {
-                    max-width: 100%;
-                    height: auto;
-                }
-                #pdf-content-wrapper hr {
-                    border: none;
-                    border-top: 1px solid #e5e7eb;
-                    margin: 16px 0;
-                }
-            </style>
-            ${htmlContent}
-        </div>
+    // Create a temporary container that is visible but off-screen
+    const container = document.createElement('div');
+    container.id = 'pdf-temp-container';
+    container.style.cssText = `
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 800px;
+        background: white;
+        padding: 40px;
+        z-index: -1;
+        opacity: 0;
+        pointer-events: none;
     `;
 
-    wrapper.innerHTML = styledContent;
-    document.body.appendChild(wrapper);
+    // Apply inline styles to HTML content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
 
-    // PDF options
-    const options = {
-        margin: [10, 10, 10, 10],
-        filename: fileName + '.pdf',
-        image: {
-            type: 'jpeg',
-            quality: 0.98
-        },
-        html2canvas: {
-            scale: 2,
-            useCORS: true,
-            letterRendering: true,
-            logging: false,
-            backgroundColor: '#ffffff'
-        },
-        jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait',
-            compress: true
-        },
-        pagebreak: {
-            mode: ['avoid-all', 'css', 'legacy']
+    // Apply styles directly to elements
+    const applyStyles = (element) => {
+        if (element.nodeType !== 1) return;
+
+        switch(element.tagName.toLowerCase()) {
+            case 'h1':
+                element.style.cssText = 'color: #1e3a8a; font-size: 28px; margin: 24px 0 12px 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; font-weight: bold;';
+                break;
+            case 'h2':
+                element.style.cssText = 'color: #1e3a8a; font-size: 24px; margin: 20px 0 10px 0; font-weight: bold;';
+                break;
+            case 'h3':
+                element.style.cssText = 'color: #1e3a8a; font-size: 20px; margin: 18px 0 8px 0; font-weight: bold;';
+                break;
+            case 'h4':
+                element.style.cssText = 'color: #1e3a8a; font-size: 18px; margin: 16px 0 8px 0; font-weight: bold;';
+                break;
+            case 'h5':
+            case 'h6':
+                element.style.cssText = 'color: #1e3a8a; font-size: 16px; margin: 14px 0 6px 0; font-weight: bold;';
+                break;
+            case 'p':
+                element.style.cssText = 'margin: 10px 0; line-height: 1.6; color: #1f2937;';
+                break;
+            case 'ul':
+            case 'ol':
+                element.style.cssText = 'margin: 10px 0; padding-left: 30px; color: #1f2937;';
+                break;
+            case 'li':
+                element.style.cssText = 'margin: 6px 0; color: #1f2937;';
+                break;
+            case 'code':
+                if (element.parentElement.tagName.toLowerCase() !== 'pre') {
+                    element.style.cssText = 'background: #f3f4f6; color: #1f2937; padding: 2px 6px; border-radius: 3px; font-family: "Courier New", monospace; font-size: 14px;';
+                }
+                break;
+            case 'pre':
+                element.style.cssText = 'background: #f3f4f6; color: #1f2937; padding: 16px; border-radius: 4px; margin: 16px 0; border: 1px solid #e5e7eb; overflow-x: auto; font-family: "Courier New", monospace;';
+                const codeInPre = element.querySelector('code');
+                if (codeInPre) {
+                    codeInPre.style.cssText = 'background: transparent; color: #1f2937; font-family: "Courier New", monospace;';
+                }
+                break;
+            case 'blockquote':
+                element.style.cssText = 'border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0; color: #6b7280; font-style: italic;';
+                break;
+            case 'a':
+                element.style.cssText = 'color: #3b82f6; text-decoration: underline;';
+                break;
+            case 'table':
+                element.style.cssText = 'width: 100%; border-collapse: collapse; margin: 16px 0;';
+                break;
+            case 'th':
+                element.style.cssText = 'border: 1px solid #d1d5db; padding: 10px; text-align: left; background: #1e3a8a; color: white; font-weight: 600;';
+                break;
+            case 'td':
+                element.style.cssText = 'border: 1px solid #d1d5db; padding: 10px; text-align: left; color: #1f2937;';
+                break;
+            case 'tr':
+                if (element.parentElement.tagName.toLowerCase() === 'tbody') {
+                    const index = Array.from(element.parentElement.children).indexOf(element);
+                    if (index % 2 === 1) {
+                        element.style.cssText = 'background: #f9fafb;';
+                    }
+                }
+                break;
+            case 'hr':
+                element.style.cssText = 'border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;';
+                break;
+            case 'img':
+                element.style.cssText = 'max-width: 100%; height: auto;';
+                break;
         }
+
+        // Recursively apply to children
+        Array.from(element.children).forEach(applyStyles);
     };
 
-    // Generate PDF
-    html2pdf()
-        .set(options)
-        .from(wrapper)
-        .save()
-        .then(() => {
-            // Cleanup
-            document.body.removeChild(wrapper);
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            showSuccessMessage('PDF bestand gedownload!');
-        })
-        .catch(error => {
-            // Cleanup on error
-            if (document.body.contains(wrapper)) {
-                document.body.removeChild(wrapper);
+    // Apply styles to all elements
+    Array.from(tempDiv.children).forEach(applyStyles);
+
+    // Set base styling
+    container.style.fontFamily = 'Arial, Helvetica, sans-serif';
+    container.style.fontSize = '14px';
+    container.style.lineHeight = '1.6';
+    container.style.color = '#1f2937';
+
+    container.appendChild(tempDiv);
+    document.body.appendChild(container);
+
+    // Wait for content to render, then generate PDF
+    setTimeout(() => {
+        const options = {
+            margin: 15,
+            filename: fileName + '.pdf',
+            image: {
+                type: 'jpeg',
+                quality: 0.98
+            },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: true,
+                backgroundColor: '#ffffff',
+                windowWidth: 800,
+                windowHeight: container.scrollHeight
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: {
+                mode: ['avoid-all', 'css', 'legacy']
             }
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            alert('Er is een fout opgetreden bij het maken van de PDF: ' + error.message);
-            console.error('PDF generation error:', error);
-        });
+        };
+
+        html2pdf()
+            .set(options)
+            .from(container)
+            .save()
+            .then(() => {
+                // Cleanup
+                if (document.body.contains(container)) {
+                    document.body.removeChild(container);
+                }
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showSuccessMessage('PDF bestand gedownload!');
+            })
+            .catch(error => {
+                // Cleanup on error
+                if (document.body.contains(container)) {
+                    document.body.removeChild(container);
+                }
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                alert('Er is een fout opgetreden bij het maken van de PDF: ' + error.message);
+                console.error('PDF generation error:', error);
+            });
+    }, 100); // Small delay to ensure rendering
 }
 
 function showSuccessMessage(message) {
